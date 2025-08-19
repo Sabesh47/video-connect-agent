@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   PhoneCall, 
   PhoneCallIcon, 
@@ -10,13 +13,16 @@ import {
   CheckCircle, 
   User, 
   LogOut,
-  Bell
+  Bell,
+  Phone
 } from "lucide-react";
 import { PermissionModal } from "@/components/PermissionModal";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [customerPhone, setCustomerPhone] = useState("");
 
   const handleToggleOnline = (checked: boolean) => {
     if (checked) {
@@ -29,6 +35,16 @@ const Dashboard = () => {
   const handlePermissionGranted = () => {
     setIsOnline(true);
     setShowPermissionModal(false);
+  };
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
+
+  const handleInitiateCall = () => {
+    if (customerPhone.trim()) {
+      navigate("/call-session?type=agent");
+    }
   };
 
   const stats = [
@@ -75,7 +91,7 @@ const Dashboard = () => {
               <User className="h-5 w-5" />
               <span className="font-medium">Agent Smith</span>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
@@ -110,6 +126,43 @@ const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Initiate Call Section */}
+        {isOnline && (
+          <Card className="mb-8 shadow-soft border-2 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Phone className="h-5 w-5 text-primary" />
+                <span>Initiate Customer Call</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex space-x-4 items-end">
+                <div className="flex-1">
+                  <Label htmlFor="customerPhone">Customer Mobile Number</Label>
+                  <Input
+                    id="customerPhone"
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={handleInitiateCall}
+                  disabled={!customerPhone.trim()}
+                  className="bg-gradient-primary hover:opacity-90"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Customer
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Enter the customer's mobile number to initiate a video KYC call.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -20,34 +20,71 @@ const documentQuestions = [
   {
     category: "Aadhaar Card",
     questions: [
-      "Is the Aadhaar card clearly visible and readable?",
-      "Does the name match across all documents?",
-      "Is the photograph clear and matches the customer?",
-      "Are all 12 digits of Aadhaar number visible?"
+      {
+        question: "Is the Aadhaar card clearly visible and readable?",
+        expectedAnswer: "Yes, the Aadhaar card should be clearly visible with all text readable and not blurred."
+      },
+      {
+        question: "Does the name match across all documents?",
+        expectedAnswer: "Yes, the name should match exactly across Aadhaar, PAN, and other documents."
+      },
+      {
+        question: "Is the photograph clear and matches the customer?",
+        expectedAnswer: "Yes, the photograph should be clear and match the customer's current appearance."
+      },
+      {
+        question: "Are all 12 digits of Aadhaar number visible?",
+        expectedAnswer: "Yes, all 12 digits should be clearly visible and readable."
+      }
     ]
   },
   {
     category: "PAN Card",
     questions: [
-      "Is the PAN card original and not a photocopy?",
-      "Is the PAN number clearly visible?",
-      "Does the name match with other documents?",
-      "Is the card not damaged or tampered?"
+      {
+        question: "Is the PAN card original and not a photocopy?",
+        expectedAnswer: "Yes, should be an original PAN card with proper texture and security features."
+      },
+      {
+        question: "Is the PAN number clearly visible?",
+        expectedAnswer: "Yes, the 10-character PAN number should be clearly readable."
+      },
+      {
+        question: "Does the name match with other documents?",
+        expectedAnswer: "Yes, the name should match exactly with Aadhaar and other documents."
+      },
+      {
+        question: "Is the card not damaged or tampered?",
+        expectedAnswer: "Yes, the card should be in good condition without any signs of tampering."
+      }
     ]
   },
   {
     category: "Bank Statement",
     questions: [
-      "Is the statement recent (within 3 months)?",
-      "Does the address match with other documents?",
-      "Are bank details clearly visible?",
-      "Is it an original statement from the bank?"
+      {
+        question: "Is the statement recent (within 3 months)?",
+        expectedAnswer: "Yes, the statement should be dated within the last 3 months."
+      },
+      {
+        question: "Does the address match with other documents?",
+        expectedAnswer: "Yes, the address should match exactly with Aadhaar card address."
+      },
+      {
+        question: "Are bank details clearly visible?",
+        expectedAnswer: "Yes, bank name, account number, and IFSC code should be clearly visible."
+      },
+      {
+        question: "Is it an original statement from the bank?",
+        expectedAnswer: "Yes, should be an official bank statement with proper letterhead and seal."
+      }
     ]
   }
 ];
 
 export const QuestionModal = ({ isOpen, onClose }: QuestionModalProps) => {
   const [checkedQuestions, setCheckedQuestions] = useState<Set<string>>(new Set());
+  const [showExpectedAnswer, setShowExpectedAnswer] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState("");
 
   const handleQuestionChange = (questionId: string, checked: boolean) => {
@@ -58,6 +95,16 @@ export const QuestionModal = ({ isOpen, onClose }: QuestionModalProps) => {
       newChecked.delete(questionId);
     }
     setCheckedQuestions(newChecked);
+  };
+
+  const toggleExpectedAnswer = (questionId: string) => {
+    const newShowExpected = new Set(showExpectedAnswer);
+    if (newShowExpected.has(questionId)) {
+      newShowExpected.delete(questionId);
+    } else {
+      newShowExpected.add(questionId);
+    }
+    setShowExpectedAnswer(newShowExpected);
   };
 
   const handleSubmit = () => {
@@ -106,31 +153,51 @@ export const QuestionModal = ({ isOpen, onClose }: QuestionModalProps) => {
                     <span>{docCategory.category}</span>
                   </h3>
                   <div className="space-y-3">
-                    {docCategory.questions.map((question, questionIndex) => {
+                    {docCategory.questions.map((questionItem, questionIndex) => {
                       const questionId = `${categoryIndex}-${questionIndex}`;
                       const isChecked = checkedQuestions.has(questionId);
+                      const showAnswer = showExpectedAnswer.has(questionId);
                       
                       return (
-                        <div key={questionIndex} className="flex items-start space-x-3">
-                          <Checkbox
-                            id={questionId}
-                            checked={isChecked}
-                            onCheckedChange={(checked) => 
-                              handleQuestionChange(questionId, checked as boolean)
-                            }
-                            className="mt-1"
-                          />
-                          <label 
-                            htmlFor={questionId} 
-                            className={`text-sm flex-1 cursor-pointer ${
-                              isChecked ? 'text-success line-through' : ''
-                            }`}
-                          >
-                            {question}
-                          </label>
-                          {isChecked && (
-                            <CheckCircle className="h-4 w-4 text-success mt-0.5" />
-                          )}
+                        <div key={questionIndex} className="border rounded-lg p-3">
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              id={questionId}
+                              checked={isChecked}
+                              onCheckedChange={(checked) => 
+                                handleQuestionChange(questionId, checked as boolean)
+                              }
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <label 
+                                htmlFor={questionId} 
+                                className={`text-sm cursor-pointer block ${
+                                  isChecked ? 'text-success line-through' : ''
+                                }`}
+                              >
+                                {questionItem.question}
+                              </label>
+                              <div className="mt-2 flex items-center space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleExpectedAnswer(questionId)}
+                                  className="h-6 px-2 text-xs"
+                                >
+                                  {showAnswer ? "Hide" : "Show"} Expected Answer
+                                </Button>
+                              </div>
+                              {showAnswer && (
+                                <div className="mt-2 p-2 bg-muted rounded text-xs text-muted-foreground">
+                                  <strong>Expected:</strong> {questionItem.expectedAnswer}
+                                </div>
+                              )}
+                            </div>
+                            {isChecked && (
+                              <CheckCircle className="h-4 w-4 text-success mt-0.5" />
+                            )}
+                          </div>
                         </div>
                       );
                     })}

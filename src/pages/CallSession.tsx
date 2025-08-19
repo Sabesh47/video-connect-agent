@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +13,30 @@ import {
   HelpCircle,
   Clock,
   User,
-  FileText
+  FileText,
+  LogOut
 } from "lucide-react";
 
 const CallSession = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const userType = searchParams.get("type") || "agent";
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
   const [callDuration, setCallDuration] = useState("05:32");
+
+  const handleEndCall = () => {
+    if (userType === "customer") {
+      navigate("/customer-portal");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
 
   const customerInfo = {
     name: "John Doe",
@@ -41,6 +58,12 @@ const CallSession = () => {
             <div className="flex items-center space-x-2 text-sm">
               <Clock className="h-4 w-4" />
               <span>{callDuration}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
@@ -116,6 +139,7 @@ const CallSession = () => {
                   <Button
                     variant="destructive"
                     size="lg"
+                    onClick={handleEndCall}
                     className="rounded-full bg-danger hover:bg-danger/90"
                   >
                     <PhoneOff className="h-5 w-5" />
@@ -173,46 +197,52 @@ const CallSession = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => setShowQuestions(true)}
-                >
-                  <HelpCircle className="h-4 w-4 mr-2" />
-                  Document Questions
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Verification Notes
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Quick Actions - Only show for agents */}
+            {userType === "agent" && (
+              <Card className="shadow-soft">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setShowQuestions(true)}
+                  >
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Document Questions
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Verification Notes
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Question Modal */}
-      <QuestionModal 
-        isOpen={showQuestions}
-        onClose={() => setShowQuestions(false)}
-      />
+      {/* Question Modal - Only for agents */}
+      {userType === "agent" && (
+        <>
+          <QuestionModal 
+            isOpen={showQuestions}
+            onClose={() => setShowQuestions(false)}
+          />
 
-      {/* Floating Question Button */}
-      <div className="fixed bottom-6 right-6">
-        <Button
-          size="lg"
-          onClick={() => setShowQuestions(true)}
-          className="rounded-full shadow-strong bg-gradient-primary hover:opacity-90"
-        >
-          <HelpCircle className="h-6 w-6" />
-        </Button>
-      </div>
+          {/* Floating Question Button */}
+          <div className="fixed bottom-6 right-6">
+            <Button
+              size="lg"
+              onClick={() => setShowQuestions(true)}
+              className="rounded-full shadow-strong bg-gradient-primary hover:opacity-90"
+            >
+              <HelpCircle className="h-6 w-6" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
