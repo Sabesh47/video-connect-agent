@@ -3,18 +3,24 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DocumentVerificationModal } from "@/components/DocumentVerificationModal";
 import { 
   PhoneOff, 
   Mic, 
   MicOff, 
   Video, 
   VideoOff, 
-  HelpCircle,
   Clock,
   User,
   FileText,
-  LogOut
+  LogOut,
+  CheckCircle,
+  XCircle,
+  Calendar,
+  MapPin,
+  CreditCard,
+  Camera,
+  FileCheck,
+  Home
 } from "lucide-react";
 
 const CallSession = () => {
@@ -23,8 +29,79 @@ const CallSession = () => {
   const userType = searchParams.get("type") || "agent";
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const [callDuration, setCallDuration] = useState("05:32");
+
+  // Verification processes data
+  const verificationProcesses = [
+    {
+      id: "dob",
+      title: "Confirm your Date of Birth",
+      icon: Calendar,
+      description: "Verify customer's date of birth matches their documents"
+    },
+    {
+      id: "pincode",
+      title: "Confirm your Pin Code",
+      icon: MapPin,
+      description: "Verify customer's pin code matches their address"
+    },
+    {
+      id: "location",
+      title: "Location Check",
+      icon: MapPin,
+      description: "Automatically checks latitude and longitude via GPS access"
+    },
+    {
+      id: "pancard",
+      title: "Pancard Live Validation",
+      icon: CreditCard,
+      description: "Customer shows PAN card to camera, OCR extracts details"
+    },
+    {
+      id: "selfie",
+      title: "Selfie Capture",
+      icon: Camera,
+      description: "Liveliness check - agent captures customer's photo"
+    },
+    {
+      id: "facecompare",
+      title: "Face Compare vs Pan Card",
+      icon: User,
+      description: "Compare customer's face with PAN card photo"
+    },
+    {
+      id: "panaadhaar",
+      title: "Pan vs Aadhaar Compare",
+      icon: FileCheck,
+      description: "Compare details between PAN and Aadhaar (name, DOB, address)"
+    },
+    {
+      id: "proofaddress",
+      title: "Proof of Address",
+      icon: Home,
+      description: "Verify other government IDs for address proof"
+    },
+    {
+      id: "supporting",
+      title: "Supporting Document",
+      icon: FileText,
+      description: "Verify supporting documents (Udyam registration, etc.)"
+    }
+  ];
+
+  const [verificationStatus, setVerificationStatus] = useState(
+    verificationProcesses.reduce((acc, process) => ({
+      ...acc,
+      [process.id]: 'pending'
+    }), {})
+  );
+
+  const handleVerificationChange = (processId: string, status: 'pass' | 'fail') => {
+    setVerificationStatus(prev => ({
+      ...prev,
+      [processId]: status
+    }));
+  };
 
   const handleEndCall = () => {
     if (userType === "customer") {
@@ -197,21 +274,85 @@ const CallSession = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Actions - Only show for agents */}
+            {/* Document Verification - Only show for agents */}
             {userType === "agent" && (
               <Card className="shadow-soft">
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle className="flex items-center space-x-2">
+                    <FileText className="h-5 w-5" />
+                    <span>Document Verification</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setShowVerification(true)}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Document Verification
-                  </Button>
+                <CardContent className="p-4">
+                  <div className="max-h-96 overflow-y-auto space-y-4">
+                    {/* Progress Summary */}
+                    <div className="bg-muted rounded-lg p-3 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium">Progress</span>
+                        <span className="text-xs text-muted-foreground">
+                          {Object.values(verificationStatus).filter(status => status !== 'pending').length}/9
+                        </span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-success rounded-full"></div>
+                          <span className="text-xs">{Object.values(verificationStatus).filter(status => status === 'pass').length}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-danger rounded-full"></div>
+                          <span className="text-xs">{Object.values(verificationStatus).filter(status => status === 'fail').length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Verification Processes */}
+                    {verificationProcesses.map((process) => {
+                      const status = verificationStatus[process.id];
+                      
+                      return (
+                        <div key={process.id} className="border rounded-lg p-3">
+                          <div className="flex items-start space-x-2 mb-2">
+                            <div className="bg-primary/10 rounded-full p-1.5 mt-0.5">
+                              <process.icon className="h-3 w-3 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-xs mb-1 leading-tight">{process.title}</h4>
+                              <p className="text-xs text-muted-foreground leading-tight">{process.description}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex space-x-1">
+                            <Button
+                              variant={status === 'pass' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handleVerificationChange(process.id, 'pass')}
+                              className={`flex-1 h-7 text-xs ${
+                                status === 'pass' 
+                                  ? 'bg-success hover:bg-success/90 text-success-foreground' 
+                                  : 'border-success/20 hover:bg-success/10'
+                              }`}
+                            >
+                              <CheckCircle className="h-2.5 w-2.5 mr-1" />
+                              Pass
+                            </Button>
+                            <Button
+                              variant={status === 'fail' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handleVerificationChange(process.id, 'fail')}
+                              className={`flex-1 h-7 text-xs ${
+                                status === 'fail' 
+                                  ? 'bg-danger hover:bg-danger/90 text-danger-foreground' 
+                                  : 'border-danger/20 hover:bg-danger/10'
+                              }`}
+                            >
+                              <XCircle className="h-2.5 w-2.5 mr-1" />
+                              Fail
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -219,26 +360,6 @@ const CallSession = () => {
         </div>
       </div>
 
-      {/* Document Verification Modal - Only for agents */}
-      {userType === "agent" && (
-        <>
-          <DocumentVerificationModal 
-            isOpen={showVerification}
-            onClose={() => setShowVerification(false)}
-          />
-
-          {/* Floating Verification Button */}
-          <div className="fixed bottom-6 right-6">
-            <Button
-              size="lg"
-              onClick={() => setShowVerification(true)}
-              className="rounded-full shadow-strong bg-gradient-primary hover:opacity-90"
-            >
-              <FileText className="h-6 w-6" />
-            </Button>
-          </div>
-        </>
-      )}
     </div>
   );
 };
