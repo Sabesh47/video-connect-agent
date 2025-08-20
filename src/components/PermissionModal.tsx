@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { 
   Video, 
   Mic, 
@@ -34,6 +33,8 @@ interface Permission {
 }
 
 export const PermissionModal = ({ isOpen, onClose, onPermissionGranted }: PermissionModalProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const [permissions, setPermissions] = useState<Permission[]>([
     {
       name: "Video Camera",
@@ -69,43 +70,71 @@ export const PermissionModal = ({ isOpen, onClose, onPermissionGranted }: Permis
 
   useEffect(() => {
     if (isOpen) {
-      // Simulate permission checking
-      const timer = setTimeout(() => {
-        setPermissions([
-          {
-            name: "Video Camera",
-            icon: Video,
-            status: 'good',
-            quality: 95,
-            message: "1080p HD ready"
-          },
-          {
-            name: "Microphone",
-            icon: Mic,
-            status: 'good',
-            quality: 88,
-            message: "Clear audio detected"
-          },
-          {
-            name: "Location (GPS)",
-            icon: MapPin,
-            status: 'fair',
-            quality: 72,
-            message: "Approximate location available"
-          },
-          {
-            name: "Internet Connection",
-            icon: Wifi,
-            status: 'good',
-            quality: 92,
-            message: "High speed connection"
+      // Start camera preview and check permissions
+      const initializeCamera = async () => {
+        try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: true, 
+            audio: true 
+          });
+          setStream(mediaStream);
+          
+          if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
           }
-        ]);
-        setIsComplete(true);
-      }, 2000);
 
-      return () => clearTimeout(timer);
+          // Simulate other permission checks
+          setTimeout(() => {
+            setPermissions([
+              {
+                name: "Video Camera",
+                icon: Video,
+                status: 'good',
+                quality: 95,
+                message: "1080p HD ready"
+              },
+              {
+                name: "Microphone",
+                icon: Mic,
+                status: 'good',
+                quality: 88,
+                message: "Clear audio detected"
+              },
+              {
+                name: "Location (GPS)",
+                icon: MapPin,
+                status: 'fair',
+                quality: 72,
+                message: "Approximate location available"
+              },
+              {
+                name: "Internet Connection",
+                icon: Wifi,
+                status: 'good',
+                quality: 92,
+                message: "High speed connection"
+              }
+            ]);
+            setIsComplete(true);
+          }, 1000);
+        } catch (error) {
+          console.error("Camera access denied:", error);
+          setPermissions(prev => prev.map(p => 
+            p.name === "Video Camera" 
+              ? { ...p, status: 'poor', message: "Camera access denied" }
+              : p
+          ));
+        }
+      };
+
+      initializeCamera();
     }
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
   }, [isOpen]);
 
   const getStatusColor = (status: PermissionStatus) => {
@@ -149,33 +178,40 @@ export const PermissionModal = ({ isOpen, onClose, onPermissionGranted }: Permis
             We need to verify your system capabilities before you can go online.
           </p>
 
+          {/* Video Preview */}
+          <div className="border rounded-lg p-3 bg-black">
+            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-2">
+              Camera Preview
+            </p>
+          </div>
+
           <div className="space-y-3">
             {permissions.map((permission) => {
               const StatusIcon = getStatusIcon(permission.status);
               
               return (
                 <div key={permission.name} className="border rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <permission.icon className="h-4 w-4" />
                       <span className="font-medium text-sm">{permission.name}</span>
                     </div>
-                    <StatusIcon className={`h-4 w-4 ${getStatusColor(permission.status)}`} />
-                  </div>
-                  
-                  {permission.status !== 'checking' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Quality</span>
-                        <span className="font-medium">{permission.quality}%</span>
-                      </div>
-                      <Progress 
-                        value={permission.quality} 
-                        className={`h-2 ${getQualityColor(permission.quality)}`}
-                      />
+                    <div className="flex items-center space-x-2">
+                      {permission.status !== 'checking' && (
+                        <span className="text-xs font-medium">{permission.quality}%</span>
+                      )}
+                      <StatusIcon className={`h-4 w-4 ${getStatusColor(permission.status)}`} />
                     </div>
-                  )}
-                  
+                  </div>
                   <p className="text-xs text-muted-foreground mt-2">
                     {permission.message}
                   </p>

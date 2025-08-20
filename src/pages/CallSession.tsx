@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { QuestionModal } from "@/components/QuestionModal";
+import { DocumentVerificationModal } from "@/components/DocumentVerificationModal";
 import { 
   PhoneOff, 
   Mic, 
@@ -23,7 +23,7 @@ const CallSession = () => {
   const userType = searchParams.get("type") || "agent";
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
-  const [showQuestions, setShowQuestions] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
   const [callDuration, setCallDuration] = useState("05:32");
 
   const handleEndCall = () => {
@@ -207,14 +207,10 @@ const CallSession = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => setShowQuestions(true)}
+                    onClick={() => setShowVerification(true)}
                   >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Document Questions
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
                     <FileText className="h-4 w-4 mr-2" />
-                    Verification Notes
+                    Document Verification
                   </Button>
                 </CardContent>
               </Card>
@@ -223,22 +219,22 @@ const CallSession = () => {
         </div>
       </div>
 
-      {/* Question Modal - Only for agents */}
+      {/* Document Verification Modal - Only for agents */}
       {userType === "agent" && (
         <>
-          <QuestionModal 
-            isOpen={showQuestions}
-            onClose={() => setShowQuestions(false)}
+          <DocumentVerificationModal 
+            isOpen={showVerification}
+            onClose={() => setShowVerification(false)}
           />
 
-          {/* Floating Question Button */}
+          {/* Floating Verification Button */}
           <div className="fixed bottom-6 right-6">
             <Button
               size="lg"
-              onClick={() => setShowQuestions(true)}
+              onClick={() => setShowVerification(true)}
               className="rounded-full shadow-strong bg-gradient-primary hover:opacity-90"
             >
-              <HelpCircle className="h-6 w-6" />
+              <FileText className="h-6 w-6" />
             </Button>
           </div>
         </>
