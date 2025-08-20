@@ -228,52 +228,6 @@ const CallSession = () => {
 
           {/* Customer Info & Documents */}
           <div className="space-y-6">
-            {/* Customer Info */}
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Customer Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Name</p>
-                  <p className="font-medium">{customerInfo.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">KYC ID</p>
-                  <p className="font-medium">{customerInfo.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge variant="secondary">{customerInfo.status}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Documents */}
-            <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="h-5 w-5" />
-                  <span>Documents</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {customerInfo.documents.map((doc, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded">
-                      <span className="text-sm font-medium">{doc}</span>
-                      <Badge variant="outline" className="text-xs">
-                        Uploaded
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Document Verification - Only show for agents */}
             {userType === "agent" && (
               <Card className="shadow-soft">
@@ -356,6 +310,52 @@ const CallSession = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Customer Info */}
+            <Card className="shadow-soft">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="h-5 w-5" />
+                  <span>Customer Details</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="text-sm text-muted-foreground">Name</p>
+                  <p className="font-medium">{customerInfo.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">KYC ID</p>
+                  <p className="font-medium">{customerInfo.id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge variant="secondary">{customerInfo.status}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Documents */}
+            <Card className="shadow-soft">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Documents</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {customerInfo.documents.map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm font-medium">{doc}</span>
+                      <Badge variant="outline" className="text-xs">
+                        Uploaded
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
