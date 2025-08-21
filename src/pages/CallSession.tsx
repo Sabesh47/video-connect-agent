@@ -20,8 +20,15 @@ import {
   CreditCard,
   Camera,
   FileCheck,
-  Home
+  Home,
+  ChevronDown,
+  ChevronUp,
+  Upload,
+  Scan,
+  Eye
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const CallSession = () => {
   const navigate = useNavigate();
@@ -96,11 +103,212 @@ const CallSession = () => {
     }), {})
   );
 
+  const [expandedProcess, setExpandedProcess] = useState<string | null>(null);
+
   const handleVerificationChange = (processId: string, status: 'pass' | 'fail') => {
     setVerificationStatus(prev => ({
       ...prev,
       [processId]: status
     }));
+  };
+
+  const toggleProcessExpanded = (processId: string) => {
+    setExpandedProcess(expandedProcess === processId ? null : processId);
+  };
+
+  const renderExpandedContent = (processId: string) => {
+    switch (processId) {
+      case 'dob':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-muted-foreground">Document DOB</label>
+                <Input className="h-8 text-xs" value="15/08/1990" readOnly />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Customer Response</label>
+                <Input className="h-8 text-xs" placeholder="Enter DOB" />
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-xs">
+              <CheckCircle className="h-3 w-3 text-success" />
+              <span className="text-success">DOB matches document</span>
+            </div>
+          </div>
+        );
+      
+      case 'pincode':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-muted-foreground">Address PIN</label>
+                <Input className="h-8 text-xs" value="400001" readOnly />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Customer PIN</label>
+                <Input className="h-8 text-xs" placeholder="Enter PIN" />
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'location':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="bg-muted/50 rounded p-2">
+              <div className="flex items-center space-x-2 mb-2">
+                <MapPin className="h-3 w-3 text-primary" />
+                <span className="text-xs font-medium">GPS Location</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>Lat: 19.0760</div>
+                <div>Lng: 72.8777</div>
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Mumbai, Maharashtra</div>
+            </div>
+            <Button size="sm" className="w-full h-7 text-xs">
+              <Scan className="h-3 w-3 mr-1" />
+              Refresh Location
+            </Button>
+          </div>
+        );
+      
+      case 'pancard':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="bg-gradient-hero rounded p-3 text-center">
+              <Camera className="h-6 w-6 mx-auto mb-1 text-white" />
+              <p className="text-xs text-white">Live Camera Feed</p>
+            </div>
+            <div className="space-y-2">
+              <Button size="sm" className="w-full h-7 text-xs">
+                <Camera className="h-3 w-3 mr-1" />
+                Capture PAN Card
+              </Button>
+              <div className="bg-muted/50 rounded p-2">
+                <div className="text-xs font-medium mb-1">OCR Results:</div>
+                <div className="text-xs space-y-1">
+                  <div>Name: JOHN DOE</div>
+                  <div>PAN: ABCDE1234F</div>
+                  <div>DOB: 15/08/1990</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'selfie':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="bg-gradient-hero rounded p-3 text-center">
+              <User className="h-6 w-6 mx-auto mb-1 text-white" />
+              <p className="text-xs text-white">Customer Live View</p>
+            </div>
+            <div className="space-y-2">
+              <Button size="sm" className="w-full h-7 text-xs">
+                <Camera className="h-3 w-3 mr-1" />
+                Capture Selfie
+              </Button>
+              <div className="flex items-center space-x-2 text-xs">
+                <CheckCircle className="h-3 w-3 text-success" />
+                <span className="text-success">Liveness detected</span>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'facecompare':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-center">
+                <div className="bg-muted rounded p-2 mb-1">
+                  <User className="h-4 w-4 mx-auto" />
+                </div>
+                <span className="text-xs">Live Photo</span>
+              </div>
+              <div className="text-center">
+                <div className="bg-muted rounded p-2 mb-1">
+                  <CreditCard className="h-4 w-4 mx-auto" />
+                </div>
+                <span className="text-xs">PAN Photo</span>
+              </div>
+            </div>
+            <div className="bg-success/10 rounded p-2 text-center">
+              <span className="text-xs text-success font-medium">Match: 94%</span>
+            </div>
+          </div>
+        );
+      
+      case 'panaadhaar':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="font-medium">PAN Details</div>
+                <div className="font-medium">Aadhaar Details</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>JOHN DOE</div>
+                <div>JOHN DOE ✓</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>15/08/1990</div>
+                <div>15/08/1990 ✓</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>Mumbai, MH</div>
+                <div>Mumbai, MH ✓</div>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'proofaddress':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="border-2 border-dashed rounded p-3 text-center">
+              <Upload className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Upload Address Proof</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span>Electricity Bill</span>
+                <Eye className="h-3 w-3 text-primary" />
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span>Voter ID</span>
+                <Eye className="h-3 w-3 text-primary" />
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'supporting':
+        return (
+          <div className="mt-3 space-y-3">
+            <div className="border-2 border-dashed rounded p-3 text-center">
+              <Upload className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Upload Supporting Documents</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span>Udyam Registration</span>
+                <Eye className="h-3 w-3 text-primary" />
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span>Business License</span>
+                <Eye className="h-3 w-3 text-primary" />
+              </div>
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
   };
 
   const handleEndCall = () => {
@@ -262,47 +470,74 @@ const CallSession = () => {
                     {/* Verification Processes */}
                     {verificationProcesses.map((process) => {
                       const status = verificationStatus[process.id];
+                      const isExpanded = expandedProcess === process.id;
                       
                       return (
-                        <div key={process.id} className="border rounded-lg p-3">
-                          <div className="flex items-start space-x-2 mb-2">
-                            <div className="bg-primary/10 rounded-full p-1.5 mt-0.5">
-                              <process.icon className="h-3 w-3 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-xs mb-1 leading-tight">{process.title}</h4>
-                              <p className="text-xs text-muted-foreground leading-tight">{process.description}</p>
+                        <div key={process.id} className="border rounded-lg">
+                          <div 
+                            className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => toggleProcessExpanded(process.id)}
+                          >
+                            <div className="flex items-start space-x-2">
+                              <div className="bg-primary/10 rounded-full p-1.5 mt-0.5">
+                                <process.icon className="h-3 w-3 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-medium text-xs mb-1 leading-tight">{process.title}</h4>
+                                  <div className="flex items-center space-x-1">
+                                    {status !== 'pending' && (
+                                      <div className={`w-2 h-2 rounded-full ${
+                                        status === 'pass' ? 'bg-success' : 'bg-danger'
+                                      }`}></div>
+                                    )}
+                                    {isExpanded ? (
+                                      <ChevronUp className="h-3 w-3 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground leading-tight">{process.description}</p>
+                              </div>
                             </div>
                           </div>
-                          
-                          <div className="flex space-x-1">
-                            <Button
-                              variant={status === 'pass' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => handleVerificationChange(process.id, 'pass')}
-                              className={`flex-1 h-7 text-xs ${
-                                status === 'pass' 
-                                  ? 'bg-success hover:bg-success/90 text-success-foreground' 
-                                  : 'border-success/20 hover:bg-success/10'
-                              }`}
-                            >
-                              <CheckCircle className="h-2.5 w-2.5 mr-1" />
-                              Pass
-                            </Button>
-                            <Button
-                              variant={status === 'fail' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => handleVerificationChange(process.id, 'fail')}
-                              className={`flex-1 h-7 text-xs ${
-                                status === 'fail' 
-                                  ? 'bg-danger hover:bg-danger/90 text-danger-foreground' 
-                                  : 'border-danger/20 hover:bg-danger/10'
-                              }`}
-                            >
-                              <XCircle className="h-2.5 w-2.5 mr-1" />
-                              Fail
-                            </Button>
-                          </div>
+
+                          {isExpanded && (
+                            <div className="border-t p-3">
+                              {renderExpandedContent(process.id)}
+                              
+                              {/* Pass/Fail buttons */}
+                              <div className="flex space-x-2 mt-3">
+                                <Button
+                                  variant={status === 'pass' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => handleVerificationChange(process.id, 'pass')}
+                                  className={`flex-1 h-8 text-xs ${
+                                    status === 'pass' 
+                                      ? 'bg-success hover:bg-success/90 text-success-foreground' 
+                                      : 'border-success/20 hover:bg-success/10'
+                                  }`}
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Pass
+                                </Button>
+                                <Button
+                                  variant={status === 'fail' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => handleVerificationChange(process.id, 'fail')}
+                                  className={`flex-1 h-8 text-xs ${
+                                    status === 'fail' 
+                                      ? 'bg-danger hover:bg-danger/90 text-danger-foreground' 
+                                      : 'border-danger/20 hover:bg-danger/10'
+                                  }`}
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Fail
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
