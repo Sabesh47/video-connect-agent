@@ -37,55 +37,55 @@ const CallSession = () => {
       id: "dob",
       title: "Confirm your Date of Birth",
       icon: Calendar,
-      description: "Verify customer's date of birth matches their documents"
+      description: "Cross-verify with document dates and customer response"
     },
     {
       id: "pincode",
       title: "Confirm your Pin Code",
       icon: MapPin,
-      description: "Verify customer's pin code matches their address"
+      description: "Validate against address documents and location data"
     },
     {
       id: "location",
       title: "Location Check",
       icon: MapPin,
-      description: "Automatically checks latitude and longitude via GPS access"
+      description: "Checks Latitude and longitude automatically via GPS access"
     },
     {
       id: "pancard",
       title: "Pancard Live Validation",
       icon: CreditCard,
-      description: "Customer shows PAN card to camera, OCR extracts details"
+      description: "User shows pancard to camera and agent clicks it, the backend OCR process will extract the details"
     },
     {
       id: "selfie",
       title: "Selfie Capture",
       icon: Camera,
-      description: "Liveliness check - agent captures customer's photo"
+      description: "Liveliness check, the pic again clicked by the agent"
     },
     {
       id: "facecompare",
       title: "Face Compare vs Pan Card",
       icon: User,
-      description: "Compare customer's face with PAN card photo"
+      description: "AI-powered facial recognition matching with PAN card photo"
     },
     {
       id: "panaadhaar",
       title: "Pan vs Aadhaar Compare",
       icon: FileCheck,
-      description: "Compare details between PAN and Aadhaar (name, DOB, address)"
+      description: "Comparing all details if it match from name, DOB, address, etc"
     },
     {
       id: "proofaddress",
       title: "Proof of Address",
       icon: Home,
-      description: "Verify other government IDs for address proof"
+      description: "Other government IDs verification for address confirmation"
     },
     {
       id: "supporting",
       title: "Supporting Document",
       icon: FileText,
-      description: "Verify supporting documents (Udyam registration, etc.)"
+      description: "Udyam registration etc and other business documents"
     }
   ];
 
